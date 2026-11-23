@@ -8,9 +8,10 @@ doc_full.json
 # 答辩 PPT 不随仓库公开，保留在本地
 答辩PPT/
 
-# 本地辅助脚本，不随仓库公开
+# 本地辅助脚本与备忘，不随仓库公开
 push-to-github.bat
 push-to-github.sh
+答辩提交备忘.md
 
 # OS / editor
 .DS_Store
