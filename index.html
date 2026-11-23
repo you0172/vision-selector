@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YOLOv26 工业视觉选型助手 · 硬件参数智能推荐系统</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true">
+          <rect x="2" y="8" width="36" height="24" rx="5" fill="none" stroke="#38bdf8" stroke-width="2.2"/>
+          <circle cx="20" cy="20" r="7" fill="none" stroke="#38bdf8" stroke-width="2.2"/>
+          <circle cx="20" cy="20" r="2.6" fill="#38bdf8"/>
+          <path d="M8 8 L12 3 M32 8 L28 3" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">YOLOv26 <span>视觉选型</span></div>
+        <div class="brand-sub">INDUSTRIAL VISION SELECTOR</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-group-label">答辩演示</div>
+      <a class="nav-item active" data-page="workbench" href="#">
+        <span class="nav-ico">◈</span><span>智能选型工作台</span>
+      </a>
+      <a class="nav-item" data-page="demo" href="#">
+        <span class="nav-ico">▷</span><span>7 分钟演示路线</span>
+      </a>
+      <a class="nav-item" data-page="calculator" href="#">
+        <span class="nav-ico">∑</span><span>参数计算器</span>
+      </a>
+      <div class="nav-group-label">答辩论证</div>
+      <a class="nav-item" data-page="innovation" href="#">
+        <span class="nav-ico">✧</span><span>创新点论证</span>
+      </a>
+      <a class="nav-item" data-page="value" href="#">
+        <span class="nav-ico">◇</span><span>价值与场景</span>
+      </a>
+      <a class="nav-item" data-page="experiment" href="#">
+        <span class="nav-ico">▤</span><span>实验与验证</span>
+      </a>
+      <div class="nav-group-label">工程与资源</div>
+      <a class="nav-item" data-page="engineering" href="#">
+        <span class="nav-ico">⌘</span><span>工程与开源</span>
+      </a>
+      <a class="nav-item" data-page="hardware" href="#">
+        <span class="nav-ico">▦</span><span>硬件参数库</span>
+      </a>
+      <a class="nav-item" data-page="models" href="#">
+        <span class="nav-ico">◉</span><span>YOLOv26 模型中心</span>
+      </a>
+      <a class="nav-item" data-page="guide" href="#">
+        <span class="nav-ico">✦</span><span>选型知识指南</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="sys-status"><span class="dot"></span> 引擎就绪 · v2.6.0</div>
+      <div class="sys-sub">YOLOv26 Edge + Industrial AI</div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main-wrap">
+
+    <header class="topbar">
+      <button class="icon-btn menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
+      <div class="topbar-title">
+        <h1 id="pageTitle">智能选型工作台</h1>
+        <p id="pageSubtitle">根据产线需求，智能推荐相机 · 镜头 · 光源 · YOLO 模型配置</p>
+      </div>
+      <div class="topbar-right">
+        <span class="chip chip-ai">⚡ AI 推理引擎</span>
+        <button class="btn btn-ghost" id="resetBtn" title="重置所有输入">↺ 重置</button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ---------- PAGE: WORKBENCH ---------- -->
+      <section class="page active" id="page-workbench">
+
+        <div class="workbench-grid">
+          <!-- INPUT PANEL -->
+          <div class="panel input-panel">
+            <div class="panel-head">
+              <div>
+                <h2>① 需求参数输入</h2>
+                <p>填写检测场景的实际工况，参数越准确推荐越可靠</p>
+              </div>
+              <span class="step-badge">STEP 1</span>
+            </div>
+
+            <div class="form-scroll">
+              <div class="form-section">
+                <div class="section-title"><span class="sec-num">A</span> 检测任务</div>
+                <div class="field-grid">
+                  <label class="field">
+                    <span>检测对象类型</span>
+                    <select id="taskType">
+                      <option value="electronics">电子元器件 / PCB</option>
+                      <option value="defect">表面缺陷检测</option>
+                      <option value="weld">焊缝 / 瑕疵检测</option>
+                      <option value="dimension">零件尺寸测量</option>
+                      <option value="ocr">字符 / 条码识别</option>
+                      <option value="general">通用目标检测</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>最小检出尺寸 (mm)</span>
+                    <input type="number" id="minObject" value="3" min="0.1" step="0.1">
+                  </label>
+                  <label class="field">
+                    <span>视场宽度 FOV (mm)</span>
+                    <div class="input-with-btn">
+                      <input type="number" id="fovWidth" value="300" min="1" step="1">
+                      <button class="mini-btn" id="autoFov" title="按对象数量自动估算">自动</button>
+                    </div>
+                  </label>
+                  <label class="field">
+                    <span>视场高度 FOV (mm)</span>
+                    <input type="number" id="fovHeight" value="220" min="1" step="1">
+                  </label>
+                  <label class="field">
+                    <span>工作距离 WD (mm)</span>
+                    <input type="number" id="workDist" value="500" min="10" step="10">
+                  </label>
+                  <label class="field">
+                    <span>视场中目标数量 (个)</span>
+                    <input type="number" id="objCount" value="8" min="1" step="1">
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title"><span class="sec-num">B</span> 产线与节拍</div>
+                <div class="field-grid">
+                  <label class="field">
+                    <span>产线速度 (m/min)</span>
+                    <input type="number" id="lineSpeed" value="20" min="0" step="0.5">
+                  </label>
+                  <label class="field">
+                    <span>工件间距 (mm)</span>
+                    <input type="number" id="objSpacing" value="60" min="1" step="1">
+                  </label>
+                  <label class="field">
+                    <span>最低帧率要求 (fps)</span>
+                    <input type="number" id="minFps" value="30" min="1" step="1">
+                  </label>
+                  <label class="field">
+                    <span>单次触发/连续采集</span>
+                    <select id="triggerMode">
+                      <option value="continuous">连续采集</option>
+                      <option value="trigger">外部触发（拍单张）</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title"><span class="sec-num">C</span> 环境与安装</div>
+                <div class="field-grid">
+                  <label class="field">
+                    <span>光照条件</span>
+                    <select id="lightingEnv">
+                      <option value="controlled">稳定可控（有光源箱/罩）</option>
+                      <option value="workshop">一般车间照明</option>
+                      <option value="variable">光照变化大</option>
+                      <option value="outdoor">户外 / 强光干扰</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>安装方式</span>
+                    <select id="mount">
+                      <option value="fixed">固定支架（低振动）</option>
+                      <option value="arm">机械臂 / 轻微振动</option>
+                      <option value="moving">运动平台（高振动）</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>工作温度</span>
+                    <select id="temperature">
+                      <option value="normal">常温 0~45℃</option>
+                      <option value="hot">高温 45~70℃</option>
+                      <option value="cold">低温 -20~0℃</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>色彩需求</span>
+                    <select id="colorMode">
+                      <option value="color">彩色</option>
+                      <option value="mono">黑白（更高精度/灵敏度）</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title"><span class="sec-num">D</span> 性能与预算</div>
+                <div class="field-grid">
+                  <label class="field">
+                    <span>检测精度等级</span>
+                    <select id="precision">
+                      <option value="high">高 (±0.1mm / 严苛)</option>
+                      <option value="medium" selected>中 (±0.5mm / 常规)</option>
+                      <option value="low">一般 (±1mm / 粗检)</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>接口偏好</span>
+                    <select id="interface">
+                      <option value="auto">智能匹配</option>
+                      <option value="GigE">GigE Vision</option>
+                      <option value="USB3">USB3 Vision</option>
+                      <option value="CameraLink">Camera Link</option>
+                      <option value="CSI">MIPI CSI</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>预算等级</span>
+                    <select id="budget">
+                      <option value="economy">经济型（成本优先）</option>
+                      <option value="standard" selected>标准型（均衡）</option>
+                      <option value="performance">高性能（不惜成本）</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>部署算力</span>
+                    <select id="compute">
+                      <option value="edge">边缘设备（Jetson / 工控机 CPU）</option>
+                      <option value="gpu">独立 GPU（RTX 系列）</option>
+                      <option value="cloud">云端 / 服务器集群</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-foot">
+              <button class="btn btn-primary btn-lg" id="runRecommend">
+                <span>⚡</span> 开始智能推荐
+              </button>
+              <div class="foot-hint">基于物理成像模型 + YOLOv26 检测需求联合求解</div>
+            </div>
+          </div>
+
+          <!-- RESULT PANEL -->
+          <div class="panel result-panel" id="resultPanel">
+            <div class="panel-head">
+              <div>
+                <h2>② 智能推荐结果</h2>
+                <p>硬件选型与模型配置的一体化推荐方案</p>
+              </div>
+              <span class="step-badge step-badge-green">STEP 2</span>
+            </div>
+
+            <div class="result-empty" id="resultEmpty">
+              <div class="empty-ill">
+                <svg viewBox="0 0 120 100" width="120" height="100">
+                  <rect x="18" y="22" width="84" height="56" rx="8" fill="#e0f2fe" stroke="#7dd3fc" stroke-width="2"/>
+                  <circle cx="60" cy="50" r="16" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+                  <circle cx="60" cy="50" r="5" fill="#38bdf8"/>
+                  <path d="M30 22 L36 12 M90 22 L84 12" stroke="#7dd3fc" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <h3>等待输入参数</h3>
+              <p>填写左侧工况参数后，点击「开始智能推荐」<br>系统将为你生成完整的硬件与模型配置方案</p>
+            </div>
+
+            <div class="result-content" id="resultContent" style="display:none">
+              <!-- score banner -->
+              <div class="score-banner">
+                <div class="score-ring" id="scoreRing">
+                  <svg viewBox="0 0 100 100" width="86" height="86">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="9"/>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#22c55e" stroke-width="9" stroke-linecap="round" id="scoreArc"
+                            stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)"/>
+                  </svg>
+                  <div class="score-val" id="scoreVal">0</div>
+                </div>
+                <div class="score-info">
+                  <div class="score-label">方案匹配度</div>
+                  <div class="score-desc" id="scoreDesc">—</div>
+                  <div class="score-tags" id="scoreTags"></div>
+                </div>
+              </div>
+
+              <!-- computed requirements -->
+              <div class="req-strip" id="reqStrip"></div>
+
+              <!-- recommendation cards -->
+              <div class="rec-grid" id="recGrid"></div>
+
+              <!-- analysis -->
+              <div class="analysis-box">
+                <div class="analysis-head">📊 方案分析与工程建议</div>
+                <ul id="analysisList"></ul>
+              </div>
+
+              <div class="result-actions">
+                <button class="btn btn-outline" id="copyBtn">⧉ 复制方案摘要</button>
+                <button class="btn btn-outline" id="printBtn">⎙ 打印方案</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- PAGE: CALCULATOR ---------- -->
+      <section class="page" id="page-calculator">
+        <div class="page-intro">
+          <h2>参数计算器</h2>
+          <p>工业视觉常用光学与成像参数的正反向计算工具，与选型工作台数据联动。</p>
+        </div>
+        <div class="calc-grid">
+          <div class="panel calc-card">
+            <div class="calc-head"><span class="calc-ico">①</span><h3>焦距 / 视场 / 工作距离</h3></div>
+            <p class="calc-desc">基于针孔成像模型：焦距 f = 传感器尺寸 × 工作距离 ÷ 视场尺寸</p>
+            <div class="calc-body">
+              <label class="field"><span>传感器宽度 (mm)</span><input type="number" id="calcSensorW" value="8.4" step="0.1"></label>
+              <label class="field"><span>工作距离 WD (mm)</span><input type="number" id="calcWD" value="500" step="10"></label>
+              <label class="field"><span>视场宽度 FOV (mm)</span><input type="number" id="calcFOV" value="300" step="10"></label>
+              <button class="btn btn-primary btn-block" data-calc="optical">计算焦距</button>
+              <div class="calc-result" id="calcOpticalRes">所需焦距 <b>—</b></div>
+              <button class="btn btn-link" id="syncFromWorkbench">↳ 从工作台同步参数</button>
+            </div>
+          </div>
+
+          <div class="panel calc-card">
+            <div class="calc-head"><span class="calc-ico">②</span><h3>分辨率需求</h3></div>
+            <p class="calc-desc">按 YOLO 最小可检像素数估算相机所需水平分辨率</p>
+            <div class="calc-body">
+              <label class="field"><span>视场宽度 FOV (mm)</span><input type="number" id="resFOV" value="300" step="10"></label>
+              <label class="field"><span>最小检出尺寸 (mm)</span><input type="number" id="resObj" value="3" step="0.1"></label>
+              <label class="field"><span>目标最小成像像素 (px)</span><input type="number" id="resPixel" value="30" step="5"></label>
+              <button class="btn btn-primary btn-block" data-calc="resolution">计算分辨率</button>
+              <div class="calc-result" id="calcResRes">所需水平分辨率 <b>—</b></div>
+            </div>
+          </div>
+
+          <div class="panel calc-card">
+            <div class="calc-head"><span class="calc-ico">③</span><h3>采集帧率</h3></div>
+            <p class="calc-desc">根据产线节拍计算满足不漏检所需的最低帧率</p>
+            <div class="calc-body">
+              <label class="field"><span>产线速度 (m/min)</span><input type="number" id="fpsSpeed" value="20" step="0.5"></label>
+              <label class="field"><span>工件间距 (mm)</span><input type="number" id="fpsSpacing" value="60" step="5"></label>
+              <label class="field"><span>过采样系数</span><input type="number" id="fpsFactor" value="1.5" step="0.1"></label>
+              <button class="btn btn-primary btn-block" data-calc="fps">计算帧率</button>
+              <div class="calc-result" id="calcFpsRes">所需帧率 <b>—</b></div>
+            </div>
+          </div>
+
+          <div class="panel calc-card">
+            <div class="calc-head"><span class="calc-ico">④</span><h3>接口带宽</h3></div>
+            <p class="calc-desc">估算图像原始数据速率，辅助选择相机接口类型</p>
+            <div class="calc-body">
+              <label class="field"><span>水平像素 (px)</span><input type="number" id="bwH" value="2448" step="100"></label>
+              <label class="field"><span>垂直像素 (px)</span><input type="number" id="bwV" value="2048" step="100"></label>
+              <label class="field"><span>帧率 (fps)</span><input type="number" id="bwFps" value="30" step="5"></label>
+              <label class="field"><span>像素位深 (bit)</span>
+                <select id="bwDepth"><option value="8">8 bit (Mono)</option><option value="24">24 bit (Color RGB)</option></select>
+              </label>
+              <button class="btn btn-primary btn-block" data-calc="bandwidth">计算带宽</button>
+              <div class="calc-result" id="calcBwRes">数据速率 <b>—</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- PAGE: HARDWARE ---------- -->
+      <section class="page" id="page-hardware">
+        <div class="page-intro">
+          <h2>硬件参数库</h2>
+          <p>精选工业相机传感器、镜头与光源的典型参数，供选型参考（数据为行业典型值）。</p>
+        </div>
+        <div class="panel table-panel">
+          <div class="table-toolbar">
+            <div class="tabs" id="hwTabs">
+              <button class="tab active" data-tab="sensors">图像传感器</button>
+              <button class="tab" data-tab="lenses">工业镜头</button>
+              <button class="tab" data-tab="lights">光源类型</button>
+            </div>
+            <input type="text" class="search-box" id="hwSearch" placeholder="🔍 搜索型号 / 参数…">
+          </div>
+          <div class="table-wrap" id="hwTableWrap"></div>
+          <div class="table-foot" id="hwTableFoot"></div>
+        </div>
+      </section>
+
+      <!-- ---------- PAGE: MODELS ---------- -->
+      <section class="page" id="page-models">
+        <div class="page-intro">
+          <h2>YOLOv26 模型中心</h2>
+          <p>面向工业检测的 YOLOv26 系列模型选型指南 —— 在速度、精度与部署算力之间取得最佳平衡。</p>
+        </div>
+        <div class="model-hero">
+          <div class="model-hero-text">
+            <span class="hero-tag">LATEST GENERATION</span>
+            <h3>YOLOv26</h3>
+            <p>新一代实时目标检测架构，针对工业视觉场景优化了小目标检测、缺陷定位与边缘部署效率。提供 n / s / m / l / x 五种规模，适配从嵌入式到服务器的全谱算力。</p>
+            <div class="hero-stats" id="heroStats"></div>
+          </div>
+          <div class="model-hero-art">
+            <svg viewBox="0 0 220 160" width="220" height="160">
+              <rect x="20" y="20" width="180" height="120" rx="10" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="2"/>
+              <rect x="45" y="45" width="50" height="38" rx="4" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+              <rect x="125" y="70" width="45" height="34" rx="4" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+              <path d="M95 64 L125 87" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <circle cx="70" cy="64" r="4" fill="#2563eb"/>
+              <circle cx="147" cy="87" r="4" fill="#22c55e"/>
+              <text x="45" y="103" font-size="11" fill="#475569" font-family="sans-serif">defect 0.97</text>
+              <text x="125" y="124" font-size="11" fill="#475569" font-family="sans-serif">part 0.94</text>
+            </svg>
+          </div>
+        </div>
+        <div class="panel table-panel">
+          <div class="table-toolbar"><h3 style="margin:0;font-size:15px;">模型规格对比</h3></div>
+          <div class="table-wrap" id="modelTableWrap"></div>
+        </div>
+        <div class="tip-grid" id="modelTips"></div>
+      </section>
+
+      <!-- ---------- PAGE: DEMO SCRIPT ---------- -->
+      <section class="page" id="page-demo">
+        <div class="page-intro">
+          <h2>7 分钟演示路线</h2>
+          <p>严格对应通知第七部分的时间分配。点击「演示此页」可直接跳转到对应模块，方便陈述时同步出示证据。</p>
+        </div>
+        <div class="demo-banner">
+          <div>
+            <div class="demo-banner-title">陈述 7 分钟 + 问答 3 分钟</div>
+            <div class="demo-banner-sub">评分维度：创新 40% · 价值 30% · 实现 20% · 协作开源 10%</div>
+          </div>
+          <div class="demo-banner-score">100<small>分</small></div>
+        </div>
+        <div class="demo-timeline" id="demoTimeline"></div>
+        <div class="notice-box">
+          <div class="notice-head">⚠ 答辩红线提示（通知第八部分）</div>
+          <ul>
+            <li>不得将"使用了 YOLO / AI"本身视为创新——须说明具体改动及实测效果</li>
+            <li>个人简历须与本人实际承担的工作一致，不得虚构项目经历</li>
+            <li>作品与 PPT 须于 11 月 23 日辅导前备齐并携带到场</li>
+            <li>11 月 24 日辅导后按意见定稿，工程资料与简历 11 月 25 日初赛前备齐</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ---------- PAGE: INNOVATION ---------- -->
+      <section class="page" id="page-innovation">
+        <div class="page-intro">
+          <h2>创新点论证</h2>
+          <p>对应评审维度「首创精神与创新突破」(40%)。每个创新点均给出具体改动、证据与适用范围，避免把工具使用本身当创新。</p>
+        </div>
+        <div class="innov-list" id="innovList"></div>
+
+        <div class="panel section-gap">
+          <div class="panel-head">
+            <div><h2>迭代前后对照</h2><p>真实开发过程中的三次改动，均可在 engine.js 评分函数中核查</p></div>
+            <span class="step-badge">EVIDENCE</span>
+          </div>
+          <div class="iter-row" id="iterRow"></div>
+        </div>
+
+        <div class="panel section-gap">
+          <div class="panel-head">
+            <div><h2>基线对照 · 现场重算</h2><p>左侧为工作台当前参数；点击按钮即时计算「传统人工查表法」与「本系统」的差异</p></div>
+            <button class="btn btn-primary btn-sm" id="runBaseline">⚡ 重新计算对照</button>
+          </div>
+          <div class="baseline-wrap" id="baselineWrap">
+            <div class="baseline-empty">点击「重新计算对照」生成 5 组标准工况的对照结果</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- PAGE: VALUE ---------- -->
+      <section class="page" id="page-value">
+        <div class="page-intro">
+          <h2>价值与场景</h2>
+          <p>对应评审维度「问题导向与社会价值」(30%)。给出真实应用场景、受影响对象与可测量价值，并主动声明适用边界。</p>
+        </div>
+        <div class="panel value-hero">
+          <div class="value-hero-label">真实应用场景</div>
+          <p id="valueScenario"></p>
+          <div class="actor-row" id="valueActors"></div>
+        </div>
+        <div class="panel section-gap">
+          <div class="panel-head"><div><h2>可测量价值</h2><p>指标口径公开，前值为人工经验估计，后值为系统可复现输出</p></div></div>
+          <div class="table-wrap" id="valueTableWrap"></div>
+        </div>
+        <div class="boundary-box">
+          <div class="boundary-head">⊘ 适用边界与不成立条件</div>
+          <p id="valueBoundary"></p>
+        </div>
+      </section>
+
+      <!-- ---------- PAGE: EXPERIMENT ---------- -->
+      <section class="page" id="page-experiment">
+        <div class="page-intro">
+          <h2>实验与验证</h2>
+          <p>对应评审维度「技术实现与产品完整」(20%) 与创新证据要求。公开测试目标、指标定义、对照公平性与失败边界。</p>
+        </div>
+        <div class="exp-grid">
+          <div class="panel exp-card">
+            <div class="exp-head"><span class="exp-num">01</span><h3>测试目标与指标定义</h3></div>
+            <p class="exp-goal" id="expGoal"></p>
+            <div class="metric-defs" id="metricDefs"></div>
+          </div>
+          <div class="panel exp-card">
+            <div class="exp-head"><span class="exp-num">02</span><h3>对照公平性</h3></div>
+            <p class="exp-goal" id="expFairness"></p>
+            <div class="fair-note">对照算法：<code>Engine.baselineSelect()</code> · 推荐算法：<code>Engine.recommend()</code></div>
+          </div>
+        </div>
+
+        <div class="panel section-gap">
+          <div class="panel-head"><div><h2>测试用例与结果</h2><p>5 组标准工况，输入参数与硬件库完全相同</p></div><span class="step-badge step-badge-green">LIVE DATA</span></div>
+          <div class="table-wrap" id="expTableWrap"></div>
+          <div class="exp-summary" id="expSummary"></div>
+        </div>
+
+        <div class="panel section-gap">
+          <div class="panel-head"><div><h2>失败边界</h2><p>主动声明系统不适用的条件，避免夸大结论</p></div></div>
+          <div class="limit-grid" id="limitGrid"></div>
+        </div>
+      </section>
+
+      <!-- ---------- PAGE: ENGINEERING ---------- -->
+      <section class="page" id="page-engineering">
+        <div class="page-intro">
+          <h2>工程与开源</h2>
+          <p>对应评审维度「团队协作与开源共享」(10%) 与通知要求的「可追溯工程资料」。</p>
+        </div>
+        <div class="eng-grid">
+          <div class="panel eng-card">
+            <div class="eng-head"><span class="eng-ico">⌘</span><h3>工程信息</h3></div>
+            <div id="engMeta"></div>
+          </div>
+          <div class="panel eng-card">
+            <div class="eng-head"><span class="eng-ico">▦</span><h3>文件清单</h3></div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+        </div>
+        <div class="contrib-box">
+          <div class="contrib-head">✎ 本人贡献（须由学生本人按实际填写）</div>
+          <p class="contrib-warn">通知明确要求：个人简历须与本人实际承担的工作一致，不得虚构项目经历。以下内容为填写模板，请替换为真实分工。</p>
+          <textarea id="contribInput" rows="5" placeholder="示例：本人负责推荐引擎的约束评分函数设计与实现，完成 5 组工况的对照实验与结果整理；镜头与光源数据库由其他成员维护。（请按实际情况修改）"></textarea>
+          <div class="contrib-foot"><span id="contribCount">0 字</span><button class="btn btn-outline btn-sm" id="copyContrib">复制填写内容</button></div>
+        </div>
+        <div class="notice-box">
+          <div class="notice-head">📌 提交前自查清单</div>
+          <ul>
+            <li>创建 GitHub 仓库并 push 全部源码，把链接填入 README 与本页</li>
+            <li>发布配套自媒体宣发文章，将链接填入 README</li>
+            <li>将本人真实分工填入上方文本框，并同步写入个人简历</li>
+            <li>现场演练 7 分钟演示路线，确认每页证据可即时调出</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ---------- PAGE: GUIDE ---------- -->
+      <section class="page" id="page-guide">
+        <div class="page-intro">
+          <h2>选型知识指南</h2>
+          <p>从成像原理到工程落地的系统性选型思路，帮助你理解推荐结果背后的逻辑。</p>
+        </div>
+        <div class="guide-grid" id="guideGrid"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay"></div>
+
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
