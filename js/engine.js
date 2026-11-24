@@ -152,44 +152,6 @@ const Engine = {
     };
   },
 
-  /* ---------- 基线对照：传统人工查表法 ---------- */
-  /* 模拟工程常见做法：仅按「分辨率达标 + 成本最低」单一约束选型，
-     不校核帧率、快门、带宽、接口与目标成像像素。用于创新点的公平对照。 */
-  baselineSelect(input){
-    const req = this.requiredResolution(input);
-    const pool = DB.sensors.filter(s => s.resH >= req.h);
-    const sensor = pool.length
-      ? pool.slice().sort((a,b)=>a.tier-b.tier || a.resH-b.resH)[0]
-      : DB.sensors[DB.sensors.length-1];
-
-    const idealFocal = Math.min(
-      sensor.sensorW * input.workDist / input.fovWidth,
-      sensor.sensorH * input.workDist / input.fovHeight
-    );
-    const lens = DB.lenses.slice().sort((a,b)=>Math.abs(a.focal-idealFocal)-Math.abs(b.focal-idealFocal))[0];
-
-    const actualFovW = sensor.sensorW * input.workDist / lens.focal;
-    const pixelOnObject = (input.minObject / actualFovW) * sensor.resH;
-    const bw = this.bandwidth(sensor.resH, sensor.resV, Math.max(input.minFps,1), input.colorMode === 'color');
-
-    /* 基线方法通常按经验直接指定 GigE（未做带宽校核） */
-    const assumedIface = 'GigE';
-    const bwOk = bw <= this.interfaceCapacity(assumedIface);
-    const motionRisk = input.lineSpeed > 0 && input.triggerMode === 'continuous' && sensor.shutter === 'rolling';
-    const pixelRisk = pixelOnObject < 20;
-
-    const risks = [];
-    if(bwOk === false) risks.push(`带宽 ${bw.toFixed(0)} MB/s 超出 GigE 约 110 MB/s 上限，实际部署需更换接口`);
-    if(motionRisk) risks.push('运动产线下卷帘快门会产生果冻效应，需返工更换全局快门相机');
-    if(pixelRisk) risks.push(`目标仅 ${pixelOnObject.toFixed(0)} px，低于 20 px 稳定检出阈值，识别易漏检`);
-
-    return {
-      sensor, lens, idealFocal, pixelOnObject, bw, assumedIface,
-      riskCount: risks.length, risks,
-      checkedConstraints: 1  // 仅分辨率
-    };
-  },
-
   /* ---------- 计算器 ---------- */
   calcOptical(sensorW, wd, fov){ return sensorW * wd / fov; },
   calcResolution(fov, obj, px){ return Math.ceil((fov/obj)*px*1.2); },

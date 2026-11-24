@@ -27,30 +27,14 @@
     </div>
 
     <nav class="nav">
-      <div class="nav-group-label">答辩演示</div>
+      <div class="nav-group-label">选型工具</div>
       <a class="nav-item active" data-page="workbench" href="#">
         <span class="nav-ico">◈</span><span>智能选型工作台</span>
-      </a>
-      <a class="nav-item" data-page="demo" href="#">
-        <span class="nav-ico">▷</span><span>7 分钟演示路线</span>
       </a>
       <a class="nav-item" data-page="calculator" href="#">
         <span class="nav-ico">∑</span><span>参数计算器</span>
       </a>
-      <div class="nav-group-label">答辩论证</div>
-      <a class="nav-item" data-page="innovation" href="#">
-        <span class="nav-ico">✧</span><span>创新点论证</span>
-      </a>
-      <a class="nav-item" data-page="value" href="#">
-        <span class="nav-ico">◇</span><span>价值与场景</span>
-      </a>
-      <a class="nav-item" data-page="experiment" href="#">
-        <span class="nav-ico">▤</span><span>实验与验证</span>
-      </a>
-      <div class="nav-group-label">工程与资源</div>
-      <a class="nav-item" data-page="engineering" href="#">
-        <span class="nav-ico">⌘</span><span>工程与开源</span>
-      </a>
+      <div class="nav-group-label">资源库</div>
       <a class="nav-item" data-page="hardware" href="#">
         <span class="nav-ico">▦</span><span>硬件参数库</span>
       </a>
@@ -60,7 +44,7 @@
     </nav>
 
     <div class="sidebar-foot">
-      <div class="sys-status"><span class="dot"></span> 引擎就绪 · v2.7.0</div>
+      <div class="sys-status"><span class="dot"></span> 引擎就绪 · v2.7.1</div>
       <div class="sys-sub">相机 · 镜头 · 光源 · 接口 联合选型</div>
     </div>
   </aside>
@@ -389,143 +373,6 @@
           </div>
           <div class="table-wrap" id="hwTableWrap"></div>
           <div class="table-foot" id="hwTableFoot"></div>
-        </div>
-      </section>
-
-      <!-- ---------- PAGE: DEMO SCRIPT ---------- -->
-      <section class="page" id="page-demo">
-        <div class="page-intro">
-          <h2>7 分钟演示路线</h2>
-          <p>严格对应通知第七部分的时间分配。点击「演示此页」可直接跳转到对应模块，方便陈述时同步出示证据。</p>
-        </div>
-        <div class="demo-banner">
-          <div>
-            <div class="demo-banner-title">陈述 7 分钟 + 问答 3 分钟</div>
-            <div class="demo-banner-sub">评分维度：创新 40% · 价值 30% · 实现 20% · 协作开源 10%</div>
-          </div>
-          <div class="demo-banner-score">100<small>分</small></div>
-        </div>
-        <div class="demo-timeline" id="demoTimeline"></div>
-        <div class="notice-box">
-          <div class="notice-head">⚠ 答辩红线提示（通知第八部分）</div>
-          <ul>
-            <li>不得将"使用了 AI"本身视为创新——须说明具体改动及实测效果</li>
-            <li>个人简历须与本人实际承担的工作一致，不得虚构项目经历</li>
-            <li>作品与 PPT 须于 11 月 23 日辅导前备齐并携带到场</li>
-            <li>11 月 24 日辅导后按意见定稿，工程资料与简历 11 月 25 日初赛前备齐</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ---------- PAGE: INNOVATION ---------- -->
-      <section class="page" id="page-innovation">
-        <div class="page-intro">
-          <h2>创新点论证</h2>
-          <p>对应评审维度「首创精神与创新突破」(40%)。每个创新点均给出具体改动、证据与适用范围，避免把工具使用本身当创新。</p>
-        </div>
-        <div class="innov-list" id="innovList"></div>
-
-        <div class="panel section-gap">
-          <div class="panel-head">
-            <div><h2>迭代前后对照</h2><p>真实开发过程中的三次改动，均可在 engine.js 评分函数中核查</p></div>
-            <span class="step-badge">EVIDENCE</span>
-          </div>
-          <div class="iter-row" id="iterRow"></div>
-        </div>
-
-        <div class="panel section-gap">
-          <div class="panel-head">
-            <div><h2>基线对照 · 现场重算</h2><p>左侧为工作台当前参数；点击按钮即时计算「传统人工查表法」与「本系统」的差异</p></div>
-            <button class="btn btn-primary btn-sm" id="runBaseline">⚡ 重新计算对照</button>
-          </div>
-          <div class="baseline-wrap" id="baselineWrap">
-            <div class="baseline-empty">点击「重新计算对照」生成 5 组标准工况的对照结果</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ---------- PAGE: VALUE ---------- -->
-      <section class="page" id="page-value">
-        <div class="page-intro">
-          <h2>价值与场景</h2>
-          <p>对应评审维度「问题导向与社会价值」(30%)。给出真实应用场景、受影响对象与可测量价值，并主动声明适用边界。</p>
-        </div>
-        <div class="panel value-hero">
-          <div class="value-hero-label">真实应用场景</div>
-          <p id="valueScenario"></p>
-          <div class="actor-row" id="valueActors"></div>
-        </div>
-        <div class="panel section-gap">
-          <div class="panel-head"><div><h2>可测量价值</h2><p>指标口径公开，前值为人工经验估计，后值为系统可复现输出</p></div></div>
-          <div class="table-wrap" id="valueTableWrap"></div>
-        </div>
-        <div class="boundary-box">
-          <div class="boundary-head">⊘ 适用边界与不成立条件</div>
-          <p id="valueBoundary"></p>
-        </div>
-      </section>
-
-      <!-- ---------- PAGE: EXPERIMENT ---------- -->
-      <section class="page" id="page-experiment">
-        <div class="page-intro">
-          <h2>实验与验证</h2>
-          <p>对应评审维度「技术实现与产品完整」(20%) 与创新证据要求。公开测试目标、指标定义、对照公平性与失败边界。</p>
-        </div>
-        <div class="exp-grid">
-          <div class="panel exp-card">
-            <div class="exp-head"><span class="exp-num">01</span><h3>测试目标与指标定义</h3></div>
-            <p class="exp-goal" id="expGoal"></p>
-            <div class="metric-defs" id="metricDefs"></div>
-          </div>
-          <div class="panel exp-card">
-            <div class="exp-head"><span class="exp-num">02</span><h3>对照公平性</h3></div>
-            <p class="exp-goal" id="expFairness"></p>
-            <div class="fair-note">对照算法：<code>Engine.baselineSelect()</code> · 推荐算法：<code>Engine.recommend()</code></div>
-          </div>
-        </div>
-
-        <div class="panel section-gap">
-          <div class="panel-head"><div><h2>测试用例与结果</h2><p>5 组标准工况，输入参数与硬件库完全相同</p></div><span class="step-badge step-badge-green">LIVE DATA</span></div>
-          <div class="table-wrap" id="expTableWrap"></div>
-          <div class="exp-summary" id="expSummary"></div>
-        </div>
-
-        <div class="panel section-gap">
-          <div class="panel-head"><div><h2>失败边界</h2><p>主动声明系统不适用的条件，避免夸大结论</p></div></div>
-          <div class="limit-grid" id="limitGrid"></div>
-        </div>
-      </section>
-
-      <!-- ---------- PAGE: ENGINEERING ---------- -->
-      <section class="page" id="page-engineering">
-        <div class="page-intro">
-          <h2>工程与开源</h2>
-          <p>对应评审维度「团队协作与开源共享」(10%) 与通知要求的「可追溯工程资料」。</p>
-        </div>
-        <div class="eng-grid">
-          <div class="panel eng-card">
-            <div class="eng-head"><span class="eng-ico">⌘</span><h3>工程信息</h3></div>
-            <div id="engMeta"></div>
-          </div>
-          <div class="panel eng-card">
-            <div class="eng-head"><span class="eng-ico">▦</span><h3>文件清单</h3></div>
-            <div class="file-list" id="fileList"></div>
-          </div>
-        </div>
-        <div class="contrib-box">
-          <div class="contrib-head">✎ 本人贡献（须由学生本人按实际填写）</div>
-          <p class="contrib-warn">通知明确要求：个人简历须与本人实际承担的工作一致，不得虚构项目经历。以下内容为填写模板，请替换为真实分工。</p>
-          <textarea id="contribInput" rows="5" placeholder="示例：本人负责推荐引擎的约束评分函数设计与实现，完成 5 组工况的对照实验与结果整理；镜头与光源数据库由其他成员维护。（请按实际情况修改）"></textarea>
-          <div class="contrib-foot"><span id="contribCount">0 字</span><button class="btn btn-outline btn-sm" id="copyContrib">复制填写内容</button></div>
-        </div>
-        <div class="notice-box">
-          <div class="notice-head">📌 提交前自查清单</div>
-          <ul>
-            <li>创建 GitHub 仓库并 push 全部源码，把链接填入 README 与本页</li>
-            <li>发布配套自媒体宣发文章，将链接填入 README</li>
-            <li>将本人真实分工填入上方文本框，并同步写入个人简历</li>
-            <li>现场演练 7 分钟演示路线，确认每页证据可即时调出</li>
-          </ul>
         </div>
       </section>
 
