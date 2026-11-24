@@ -70,12 +70,12 @@
 | 类别 | 数量 | 品牌与代表型号 |
 |---|---|---|
 | 图像传感器 | 19 | Sony IMX 系列 16 款（IMX174 / 249 / 265 / 273 / 462 / 533 等）· ams CMV2000 · Gpixel GMAX2505 · onsemi AR0821 |
-| 工业相机 | 26 | 海康威视（MV-CU013 单色/彩色、MV-CS050、MV-CS060、MV-CA050、MV-CU120）· 大恒图像（MER2-503-36U3M、MER2-160-75GM-P、MER-2000-19U3M）· 华睿 A5201CG50 · Basler（acA2440-75um/35um、acA1920-40um）· FLIR（BFS-U3-16S2M、BFS-U3-51S5M、BFS-U3-200S6M）· Baumer（VCXU-50M、VCXG-51M）· JAI GO-5000M-USB · Allied Vision（Mako G-507B、Alvium 1800 U-508m）· The Imaging Source（DMK 33UX264/250）· 迈德威视（MV-SUA501GM、MV-SUA133GM）· Omron Sentech STC-MCS500U3V |
+| 工业相机 | 30 | 面阵：海康威视（MV-CU013 单色/彩色、MV-CS050、MV-CS060、MV-CA050、MV-CU120）· 大恒图像（MER2-503-36U3M、MER2-160-75GM-P、MER-2000-19U3M）· 华睿 A5201CG50 · Basler（acA2440-75um/35um、acA1920-40um）· FLIR（BFS-U3-16S2M、BFS-U3-51S5M、BFS-U3-200S6M）· Baumer（VCXU-50M、VCXG-51M）· JAI GO-5000M-USB · Allied Vision（Mako G-507B、Alvium 1800 U-508m）· The Imaging Source（DMK 33UX264/250）· 迈德威视（MV-SUA501GM、MV-SUA133GM）· Omron Sentech STC-MCS500U3V；线阵：Basler racer（raL2048-48gm、raL4096-24gm）· 海康机器人 MV-CL042-91CM（4K 2-TDI Camera Link）· JAI Sweep+ SW-4000T-10GE（3-CMOS 棱镜彩色线扫） |
 | 工业镜头 | 32 | computar（M0814-MP2 ~ M7520-MP、MPW2 紧凑系列、TEC-M55 远心）· Fujinon（HF9HA-1B、HF25HA-1B、HF16HA-1B、HF35HA-1B）· Kowa（LM6HC ~ LM50HC）· Tamron（M118FM08 ~ M118FM50）· 海康威视（MVL-HF 6MP 系列）· 长步道 4/6mm 广角 |
 | 光源 | 75 | CST 44 款目录型号（CST-RS ~ CST-SAI：环形/条形/线性/面光源/同轴/穹顶无影/点/隧道/结构光/AOI/爆闪/偏振）· CCS（LDR2 / HPR2 / TH2 / LDL2 / LFL2 系列）· 奥普特（OPT-RI / OPT-BR / OPT-CO / OPT-FL / OPT-BL / OPT-DS 系列）· Effilux（EFFI-RING / BAR / FLAT / BL / COAX）· Advanced Illumination（RL / DL / BL）· Metaphase（MB-R / MB-B / MB-D）+ 9 款通用锚点型号 |
 | 光学配套组件 | 18 | Thorlabs（FB520-10 / FB450-10 / FB640-10 带通、FEL0600 长波通、NE09B 中性密度、LPVISE2A 线偏振、WP25M-532 波片、RSP1 旋转架）· Edmund Optics（470 / 850nm 带通、线偏振片）· 海康 MVL-PL 偏振片 · 奥普特 DP 系列 4 / 8 / 48 通道控制器 · CCS PD-3024 · Advanced Illumination ICS 控制器 |
 
-合计 **170 项型号**，覆盖 **30+ 品牌**；硬件库页每个类别均可按品牌、类别检索，并在表尾统计品牌覆盖数量。
+合计 **174 项型号**，覆盖 **30+ 品牌**；硬件库页每个类别均可按品牌、类别检索，并在表尾统计品牌覆盖数量。
 
 **入库与维护流程**：
 

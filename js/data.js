@@ -62,7 +62,13 @@ const DB = {
     {id:'CAM-X16', brand:'FLIR', model:'BFS-U3-200S6M', sensor:'Sony IMX183', resH:5472, resV:3648, fps:18, iface:'USB3', shutter:'rolling', tier:5, status:'在售', use:'20MP 大幅面高精度'},
     {id:'CAM-X17', brand:'迈德威视', model:'MV-SUA501GM', sensor:'Sony IMX264', resH:2448, resV:2048, fps:23, iface:'GigE', shutter:'global', tier:3, status:'在售', use:'5MP 高性价比 GigE'},
     {id:'CAM-X18', brand:'迈德威视', model:'MV-SUA133GM', sensor:'Sony IMX273', resH:1440, resV:1080, fps:75, iface:'GigE', shutter:'global', tier:2, status:'在售', use:'1.3MP 经济型高速'},
-    {id:'CAM-X19', brand:'Omron Sentech', model:'STC-MCS500U3V', sensor:'Sony IMX250', resH:2448, resV:2048, fps:75, iface:'USB3', shutter:'global', tier:4, status:'在售', use:'5MP 高速 USB3'}
+    {id:'CAM-X19', brand:'Omron Sentech', model:'STC-MCS500U3V', sensor:'Sony IMX250', resH:2448, resV:2048, fps:75, iface:'USB3', shutter:'global', tier:4, status:'在售', use:'5MP 高速 USB3'},
+    /* 线阵相机：fps 字段为最大行频(kHz)，scan:'line' 标记线扫机型，
+       参数取自 Basler / 海康机器人 / JAI 官网规格页 */
+    {id:'CAM-LS01', brand:'Basler',   model:'raL2048-48gm',    sensor:'Awaiba DR-2k-7 线阵',   resH:2048, resV:1, fps:51,  iface:'GigE',       shutter:'global', tier:3, status:'在售', use:'2K 线扫 · 表面 / 印刷检测',          scan:'line'},
+    {id:'CAM-LS02', brand:'Basler',   model:'raL4096-24gm',    sensor:'Awaiba DR-4k-7 线阵',   resH:4096, resV:1, fps:26,  iface:'GigE',       shutter:'global', tier:4, status:'在售', use:'4K 线扫 · 大幅面幅面检测',           scan:'line'},
+    {id:'CAM-LS03', brand:'海康机器人', model:'MV-CL042-91CM',   sensor:'Gpixel 4K CMOS · 2-TDI', resH:4096, resV:2, fps:100, iface:'CameraLink', shutter:'global', tier:4, status:'在售', use:'锂电 / 光伏 / PCB 高速线扫缺陷', scan:'line'},
+    {id:'CAM-LS04', brand:'JAI',      model:'SW-4000T-10GE',   sensor:'3-CMOS 棱镜分光 RGB',   resH:4096, resV:3, fps:97,  iface:'10GigE',     shutter:'global', tier:5, status:'在售', use:'棱镜彩色线扫 · 印刷 / 食品分选',    scan:'line'}
   ],
 
 
@@ -256,6 +262,18 @@ const DB = {
     {title:'A/B 对照实验方法', num:'08',
      body:'证明"改进有效"必须做公平对照：同一输入、同一硬件库、同一测试范围，唯一主要变动是约束建模方式（1 项分辨率约束 → 8 项耦合约束），同时核对部署风险、数据速率与匹配度三项结果。',
      formula:'Δ结果 = B(多约束求解) − A(单约束查表)，差异只来自约束建模',
-     list:['基线 A：仅分辨率达标 + 成本最低，接口按经验默认','改进 B：8 项约束耦合评分，违反项扣分并预警','结论必须附带边界：适用范围、未测项、不成立条件']}
+     list:['基线 A：仅分辨率达标 + 成本最低，接口按经验默认','改进 B：8 项约束耦合评分，违反项扣分并预警','结论必须附带边界：适用范围、未测项、不成立条件']},
+    {title:'传感器技术：CCD 与 CMOS', num:'09',
+     body:'两类芯片的读出方式不同：CCD 逐行把电荷包转移到统一输出端（模拟电压），噪声低、一致性高；CMOS 每个像素自带放大器、直接输出数字信号，速度快、集成度高。现代工业相机中全局快门 CMOS（如 Sony Pregius）已凭借高帧率与低功耗成为主流，CCD 仅保留在 TDI、科学级等特殊场景。',
+     formula:'选型权衡 = 快门一致性 + 帧率 + 噪声（CCD 高一致性 ↔ CMOS 高速度）',
+     list:['CCD：填充因子高、系统噪声低、动态范围与一致性高，但系统复杂、多时钟、工作电压较高','CMOS：响应度较高、速度更快、抗拖影与开窗灵活、单时钟低压工作，早期噪声劣势已被背照式 / 全局快门技术弥补','运动物体检测必须全局快门：CMOS 卷帘快门拍摄高速运动会产生果冻效应畸变']},
+    {title:'相机形态：面阵与线阵', num:'10',
+     body:'按感光单元排列方式分为面阵与线阵。面阵相机像元二维阵列排列，一次曝光成像整个面；线阵相机像元一维排列（常见 1024~16384 px），每次曝光仅采集一条线，随物体与相机的相对运动逐行扫描，拼接成大幅面二维图像。',
+     formula:'所需行频(kHz) ≥ 产线速度(mm/s) ÷ 每行覆盖物方宽度(mm) × 1000',
+     list:['面阵适合静止工位抓拍、定位与通用检测，系统最简单','线阵适合连续幅面材料：锂电极片、薄膜、印刷、无纺布、玻璃等表面缺陷检测','线阵必须配套：均匀线性光源 + 编码器同步触发，否则行间亮度/间距不均会拼接出伪缺陷','线阵分辨率以「每线像素数 × 行频」衡量（如 4K @ 100 kHz），带宽核算方式与面阵相同']},
+    {title:'彩色成像：三棱镜分光', num:'11',
+     body:'普通彩色相机靠 Bayer 滤色片插值得到颜色，三线彩色线阵相机则让 R/G/B 三行传感器先后扫过同一目标——但在卷材高速检测中三条线存在空间偏差与倾斜视场问题。三棱镜（棱镜分光）相机用分光棱镜把单一光路同步分到三片独立传感器上，R/G/B 逐像素对齐，消除 3D 圆柱偏移与空间补偿误差，实现真彩色还原；部分机型还可加第四片 NIR 传感器做多光谱分析。',
+     formula:'彩色精度：棱镜分光（单光路同步 R/G/B） > 三线分时 > Bayer 插值',
+     list:['典型应用：彩色印刷检验、食品/塑料分选、瓶罐 3D 圆柱面检测、纸币与票证检验','棱镜彩色线阵通常配 F 口 / M52 大像面镜头，且需要高功率线性光源','成本明显高于 Bayer 彩色机型，仅在颜色保真度直接决定判定结果时选用']}
   ]
 };

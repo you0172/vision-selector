@@ -201,7 +201,7 @@
     if(!r.coverOk) bounds.push('库内无完全覆盖该靶面的镜头，边缘视场存在成像衰减，需实拍验证');
     if(r.dof < 15) bounds.push(`景深约 ${r.dof.toFixed(0)} mm，结论对工件高度波动敏感`);
     r.risks.filter(x=>x.level==='mid').forEach(x=>bounds.push(x.detail + '（提示级）'));
-    bounds.push('结论适用于本硬件库（10 传感器 / 9 镜头 / 6 光源）与静态物理成像模型；光源为规则映射，未接入真实图像验证');
+    bounds.push(`结论适用于本硬件库（${DB.sensors.length} 传感器 / ${DB.cameras.length} 相机 / ${DB.lenses.length} 镜头 / ${DB.lights.length} 光源与配套件）与静态物理成像模型；光源为规则映射，未接入真实图像验证`);
     $('#boundaryList').innerHTML = bounds.map(b=>`<li>${b}</li>`).join('');
   }
 
@@ -296,7 +296,7 @@
         shTag(s.shutter), costTag(s.tier), s.use, stTag(s.status)]);
     }else if(hwTab==='cameras'){
       cols = ['品牌','整机型号','机内传感器','分辨率','帧率','接口','快门','成本','典型用途','供货状态'];
-      rows = DB.cameras.map(c=>[c.brand, '<b>'+c.model+'</b>', c.sensor, c.resH+'×'+c.resV, c.fps+' fps',
+      rows = DB.cameras.map(c=>[c.brand, '<b>'+c.model+'</b>'+(c.scan==='line'?' <span class="tag tag-blue">线阵</span>':''), c.sensor, c.resH+'×'+c.resV, c.scan==='line'?c.fps+' kHz 行频':c.fps+' fps',
         '<span class="tag tag-blue">'+c.iface+'</span>', shTag(c.shutter), costTag(c.tier), c.use, stTag(c.status)]);
     }else if(hwTab==='lenses'){
       cols = ['品牌','型号','焦距','最大光圈','覆盖像面','畸变','类型','成本','供货状态'];
