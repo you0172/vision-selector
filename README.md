@@ -156,7 +156,7 @@ new Function(src)();'
 
 ## 八、开源与提交信息
 
-- GitHub 仓库：**https://github.com/you0172/yolo-vision-selector**（如仓库改名，请同步替换此处与应用「工程与开源」页中的链接）
+- GitHub 仓库：**https://github.com/you0172/vision-selector**（如仓库改名，请同步替换此处与应用「工程与开源」页中的链接）
 - 自媒体宣发文章：见 `宣发文章草稿.md`，发布后请将链接补入本文件
 - 本人贡献：须由学生本人按实际承担工作填写，应用内「工程与开源」页提供填写框；**不得虚构项目经历**
 

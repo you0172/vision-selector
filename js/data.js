@@ -169,7 +169,7 @@ const DB = {
       ['README.md','工程说明、运行方式、测试流程与限制条件'],
       ['宣发文章草稿.md','自媒体宣发材料草稿']
     ],
-    github:'https://github.com/you0172/yolo-vision-selector'
+    github:'https://github.com/you0172/vision-selector'
   },
 
   /* 7 分钟陈述路线，与通知第七部分对应 */
