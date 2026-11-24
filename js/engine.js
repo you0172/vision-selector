@@ -35,11 +35,11 @@ const Engine = {
     return {GigE:110, USB3:400, CameraLink:850, '10GigE':1100, CSI:200, auto:1100}[name] || 110;
   },
 
-  /* 光源选型：在任务类别内优先选目录真实型号（CST 系列），按成本等级取最低、同价取先收录者；
-     该类别无目录型号时回退到类别锚点（CCS / OPT 通用型号） */
+  /* 光源选型：在任务类别内优先选库内目录收录的真实型号（按成本等级取最低、同价取先收录者）；
+     该类别无目录型号时回退到类别锚点（通用系列） */
   pickLight(catId){
     const pool = DB.lights.filter(l => l.cat === catId);
-    const catalog = pool.filter(l => l.series === 'CST').sort((a,b)=>a.tier-b.tier);
+    const catalog = pool.filter(l => l.catalog === true).sort((a,b)=>a.tier-b.tier);
     if(catalog.length) return catalog[0];
     return DB.lights.find(l => l.id === catId) || pool[0] || DB.lights[0];
   },

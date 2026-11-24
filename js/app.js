@@ -288,34 +288,33 @@
     const stTag = s => s==='在售' ? '<span class="tag tag-green">在售</span>'
                   : s==='停产' ? '<span class="tag tag-red">停产</span>'
                   : '<span class="tag tag-amber">备选替代</span>';
+    const costTag = t => '<span class="tag '+(t<=2?'tag-green':t>=5?'tag-amber':'')+'">'+tierLabel(t)+'</span>';
+    const shTag = sh => sh==='global'?'<span class="tag tag-blue">全局</span>':'<span class="tag">卷帘</span>';
     if(hwTab==='sensors'){
-      cols = ['型号','分辨率','像元(µm)','靶面(mm)','最高帧率','快门','成本','典型用途','供货状态'];
-      rows = DB.sensors.map(s=>[s.name, s.resH+'×'+s.resV, s.pixel, s.sensorW+'×'+s.sensorH, s.maxFps+' fps',
-        s.shutter==='global'?'<span class="tag tag-blue">全局</span>':'<span class="tag">卷帘</span>',
-        '<span class="tag '+(s.tier<=2?'tag-green':s.tier>=5?'tag-amber':'')+'">'+tierLabel(s.tier)+'</span>', s.use, stTag(s.status)]);
+      cols = ['品牌','传感器型号','分辨率','像元(µm)','靶面(mm)','最高帧率','快门','成本','典型用途','供货状态'];
+      rows = DB.sensors.map(s=>[s.brand, '<b>'+s.name+'</b>', s.resH+'×'+s.resV, s.pixel, s.sensorW+'×'+s.sensorH, s.maxFps+' fps',
+        shTag(s.shutter), costTag(s.tier), s.use, stTag(s.status)]);
     }else if(hwTab==='cameras'){
-      cols = ['品牌','整机型号','机内传感器','分辨率','帧率','接口','快门','典型用途','供货状态'];
+      cols = ['品牌','整机型号','机内传感器','分辨率','帧率','接口','快门','成本','典型用途','供货状态'];
       rows = DB.cameras.map(c=>[c.brand, '<b>'+c.model+'</b>', c.sensor, c.resH+'×'+c.resV, c.fps+' fps',
-        '<span class="tag tag-blue">'+c.iface+'</span>',
-        c.shutter==='global'?'<span class="tag tag-blue">全局</span>':'<span class="tag">卷帘</span>', c.use, stTag(c.status)]);
+        '<span class="tag tag-blue">'+c.iface+'</span>', shTag(c.shutter), costTag(c.tier), c.use, stTag(c.status)]);
     }else if(hwTab==='lenses'){
-      cols = ['型号','品牌 / 整机型号','焦距','最大光圈','覆盖像面','畸变','类型','供货状态'];
-      rows = DB.lenses.map(l=>[l.id, l.brand+' '+l.model, l.focal+' mm', 'F'+l.fno, 'Ø'+l.coverDiag+' mm', l.dist+' %', l.type, stTag(l.status)]);
+      cols = ['品牌','型号','焦距','最大光圈','覆盖像面','畸变','类型','成本','供货状态'];
+      rows = DB.lenses.map(l=>[l.brand, '<b>'+l.model+'</b>', l.focal+' mm', 'F'+l.fno, 'Ø'+l.coverDiag+' mm', l.dist+' %', l.type, costTag(l.tier), stTag(l.status)]);
     }else if(hwTab==='lights'){
       const CAT = {ring:'环形', bar:'条形 / 线性', back:'背光', coax:'同轴', dome:'穹顶 / 无影', flat:'面光源', spot:'点光源', rgb:'多角度', special:'特种'};
-      const brandOf = l => l.series==='CST' ? 'CST' : (l.name.startsWith('CCS')?'CCS':(l.name.includes('OPT')?'奥普特':'—'));
-      cols = ['产品','品牌','类别','适用场景','技术特点','成本','供货状态'];
-      rows = DB.lights.map(l=>[l.name, brandOf(l), CAT[l.cat]||'—', l.best, l.note,
-        '<span class="tag '+(l.tier<=2?'tag-green':l.tier>=5?'tag-amber':'')+'">'+tierLabel(l.tier)+'</span>', stTag(l.status)]);
+      cols = ['品牌','产品型号 / 系列','类别','适用场景','技术特点','成本','供货状态'];
+      rows = DB.lights.map(l=>[l.brand, '<b>'+l.name+'</b>', CAT[l.cat]||'—', l.best, l.note, costTag(l.tier), stTag(l.status)]);
     }else{
-      cols = ['型号','类别','关键规格','适用场景','供货状态','替代说明'];
-      rows = DB.accessories.map(a=>['<b>'+a.id+'</b> '+a.name, a.cat, a.spec, a.best, stTag(a.status), a.sub||'—']);
+      cols = ['品牌','型号','类别','关键规格','适用场景','供货状态','替代说明'];
+      rows = DB.accessories.map(a=>[a.brand, '<b>'+a.id+'</b> '+a.name, a.cat, a.spec, a.best, stTag(a.status), a.sub||'—']);
     }
     if(q) rows = rows.filter(r=>r.join(' ').toLowerCase().includes(q));
     $('#hwTableWrap').innerHTML = `<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${
       rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${cols.length}" style="text-align:center;padding:30px;color:var(--muted)">没有匹配的记录</td></tr>`
     }</tbody></table>`;
-    $('#hwTableFoot').textContent = `共 ${rows.length} 条记录 · 参数提取自厂商官方产品手册，入库前已核对有效性 · 供货状态随厂商新品与停产物料持续更新`;
+    const brands = new Set(rows.map(r=>r[0])).size;
+    $('#hwTableFoot').textContent = `共 ${rows.length} 条记录 · 覆盖 ${brands} 个品牌 · 参数提取自厂商官方产品手册，入库前已核对有效性 · 供货状态随厂商新品与停产物料持续更新`;
   }
   $$('#hwTabs .tab').forEach(t=>t.addEventListener('click', ()=>{
     $$('#hwTabs .tab').forEach(x=>x.classList.remove('active'));
