@@ -7,9 +7,9 @@
   const ifaceName = v => ({GigE:'GigE 千兆网接口', USB3:'USB 3.0 接口', CameraLink:'Camera Link 接口', '10GigE':'10 GigE 接口', CSI:'MIPI CSI-2 接口'})[v] || v;
 
   const PAGE_META = {
-    workbench:['智能选型工作台','根据产线需求，智能推荐相机 · 镜头 · 光源 · 接口配置'],
+    workbench:['智能选型工作台','根据产线输入条件，规则匹配推荐相机 · 镜头 · 光源 · 接口配置方案'],
     calculator:['参数计算器','光学、分辨率、帧率与带宽的常用计算工具'],
-    hardware:['硬件参数库','相机传感器、工业镜头与光源的典型规格参考'],
+    hardware:['硬件参数库','可采购供货的工业视觉器件库：传感器、镜头、光源与光学配套组件'],
     guide:['选型知识指南','理解推荐结果背后的成像与工程逻辑']
   };
 
@@ -186,8 +186,23 @@
         <div class="rec-note">${r.bwOk?'当前接口可承载估算数据速率':'数据速率超过接口上限，建议升级接口或降低分辨率 / 帧率'}</div>
       </div>`;
 
-    /* 分析建议 */
+    /* 分析建议：结论 → 证据 → 边界 三段式输出 */
+    const highN = r.risks.filter(x=>x.level==='high').length;
+    const midN = r.risks.length - highN;
+    const cl = $('#conclLine');
+    cl.style.display = 'block';
+    cl.innerHTML = `<span class="concl-tag">结论</span>针对当前工况，推荐 <b>${esc(r.sensor.name)}</b> + <b>${r.lens.focal} mm</b> ${esc(r.lens.type)} + ${esc(r.light.name)}，经 <b>${esc(r.iface)}</b> 传输，方案匹配度 <b>${r.confidence}%</b>：高风险约束 ${highN} 项，工程提示 ${midN} 项。`;
     $('#analysisList').innerHTML = r.analysis.map(a=>`<li>${a}</li>`).join('');
+
+    const bounds = [];
+    if(r.resLimited) bounds.push('所需分辨率超出库内传感器上限，当前方案为最近似替代，实测前需确认真实极限精度');
+    if(r.fpsLimited) bounds.push('所选传感器帧率低于节拍需求，当前结论仅在改用触发采集或降低节拍时成立');
+    if(!r.bwOk) bounds.push(`数据速率超出 ${esc(r.iface)} 容量，结论仅在升级接口或降低分辨率/帧率后成立`);
+    if(!r.coverOk) bounds.push('库内无完全覆盖该靶面的镜头，边缘视场存在成像衰减，需实拍验证');
+    if(r.dof < 15) bounds.push(`景深约 ${r.dof.toFixed(0)} mm，结论对工件高度波动敏感`);
+    r.risks.filter(x=>x.level==='mid').forEach(x=>bounds.push(x.detail + '（提示级）'));
+    bounds.push('结论适用于本硬件库（10 传感器 / 9 镜头 / 6 光源）与静态物理成像模型；光源为规则映射，未接入真实图像验证');
+    $('#boundaryList').innerHTML = bounds.map(b=>`<li>${b}</li>`).join('');
   }
 
   /* ---------- 复制 / 打印 / 重置 ---------- */
@@ -270,25 +285,35 @@
   function renderHardware(){
     const q = ($('#hwSearch').value||'').trim().toLowerCase();
     let rows = [], cols = [];
+    const stTag = s => s==='在售' ? '<span class="tag tag-green">在售</span>'
+                  : s==='停产' ? '<span class="tag tag-red">停产</span>'
+                  : '<span class="tag tag-amber">备选替代</span>';
     if(hwTab==='sensors'){
-      cols = ['型号','分辨率','像元(µm)','靶面(mm)','最高帧率','快门','成本','典型用途'];
+      cols = ['型号','分辨率','像元(µm)','靶面(mm)','最高帧率','快门','成本','典型用途','供货状态'];
       rows = DB.sensors.map(s=>[s.name, s.resH+'×'+s.resV, s.pixel, s.sensorW+'×'+s.sensorH, s.maxFps+' fps',
         s.shutter==='global'?'<span class="tag tag-blue">全局</span>':'<span class="tag">卷帘</span>',
-        '<span class="tag '+(s.tier<=2?'tag-green':s.tier>=5?'tag-amber':'')+'">'+tierLabel(s.tier)+'</span>', s.use]);
+        '<span class="tag '+(s.tier<=2?'tag-green':s.tier>=5?'tag-amber':'')+'">'+tierLabel(s.tier)+'</span>', s.use, stTag(s.status)]);
+    }else if(hwTab==='cameras'){
+      cols = ['品牌','整机型号','机内传感器','分辨率','帧率','接口','快门','典型用途','供货状态'];
+      rows = DB.cameras.map(c=>[c.brand, '<b>'+c.model+'</b>', c.sensor, c.resH+'×'+c.resV, c.fps+' fps',
+        '<span class="tag tag-blue">'+c.iface+'</span>',
+        c.shutter==='global'?'<span class="tag tag-blue">全局</span>':'<span class="tag">卷帘</span>', c.use, stTag(c.status)]);
     }else if(hwTab==='lenses'){
-      cols = ['型号','焦距','最大光圈','覆盖像面','畸变','类型','成本'];
-      rows = DB.lenses.map(l=>[l.id, l.focal+' mm', 'F'+l.fno, 'Ø'+l.coverDiag+' mm', l.dist+' %', l.type,
-        '<span class="tag '+(l.tier<=2?'tag-green':l.tier>=5?'tag-amber':'')+'">'+tierLabel(l.tier)+'</span>']);
+      cols = ['型号','品牌 / 整机型号','焦距','最大光圈','覆盖像面','畸变','类型','供货状态'];
+      rows = DB.lenses.map(l=>[l.id, l.brand+' '+l.model, l.focal+' mm', 'F'+l.fno, 'Ø'+l.coverDiag+' mm', l.dist+' %', l.type, stTag(l.status)]);
+    }else if(hwTab==='lights'){
+      cols = ['产品','品牌','适用场景','技术特点','成本','供货状态'];
+      rows = DB.lights.map(l=>[l.name, l.name.startsWith('CCS')?'CCS':(l.name.includes('OPT')?'奥普特':'—'), l.best, l.note,
+        '<span class="tag '+(l.tier<=2?'tag-green':l.tier>=5?'tag-amber':'')+'">'+tierLabel(l.tier)+'</span>', stTag(l.status)]);
     }else{
-      cols = ['光源类型','适用场景','技术特点','成本'];
-      rows = DB.lights.map(l=>[l.name, l.best, l.note,
-        '<span class="tag '+(l.tier<=2?'tag-green':l.tier>=5?'tag-amber':'')+'">'+tierLabel(l.tier)+'</span>']);
+      cols = ['型号','类别','关键规格','适用场景','供货状态','替代说明'];
+      rows = DB.accessories.map(a=>['<b>'+a.id+'</b> '+a.name, a.cat, a.spec, a.best, stTag(a.status), a.sub||'—']);
     }
     if(q) rows = rows.filter(r=>r.join(' ').toLowerCase().includes(q));
     $('#hwTableWrap').innerHTML = `<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${
       rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${cols.length}" style="text-align:center;padding:30px;color:var(--muted)">没有匹配的记录</td></tr>`
     }</tbody></table>`;
-    $('#hwTableFoot').textContent = `共 ${rows.length} 条记录 · 数据为行业典型参考值，实际选型请以厂商规格书为准`;
+    $('#hwTableFoot').textContent = `共 ${rows.length} 条记录 · 参数提取自厂商官方产品手册，入库前已核对有效性 · 供货状态随厂商新品与停产物料持续更新`;
   }
   $$('#hwTabs .tab').forEach(t=>t.addEventListener('click', ()=>{
     $$('#hwTabs .tab').forEach(x=>x.classList.remove('active'));
