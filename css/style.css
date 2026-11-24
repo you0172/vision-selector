@@ -346,29 +346,4 @@ tr:hover td{background:#f8fafc}
 .boundary-box li::before{content:'⚠';position:absolute;left:0;color:var(--amber);font-size:11px}
 
 /* ---------- 架构与流程图 ---------- */
-.arch-panel{margin-bottom:16px}
-.arch-head{margin-bottom:16px}
-.arch-head h3{font-size:16px;font-weight:800;color:var(--ink)}
-.arch-head p{font-size:12.5px;color:var(--muted);margin-top:4px}
-.arch-flow,.line-flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
-.flow-chip{
-  flex:1;min-width:130px;background:#f8fafc;border:1.5px solid var(--line-2);
-  border-radius:var(--radius-sm);padding:10px 12px;text-align:center;
-}
-.flow-chip b{display:block;font-size:13px;color:var(--ink)}
-.flow-chip span{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
-.flow-arrow{align-self:center;font-size:16px;color:var(--line-2);font-weight:700;flex-shrink:0}
-.fc-in{background:var(--primary-l);border-color:#93c5fd}
-.fc-in b{color:var(--primary-d)}
-.fc-solve{background:#e0f2fe;border-color:#7dd3fc}
-.fc-solve b{color:var(--cyan)}
-.fc-score{background:var(--amber-l);border-color:#fcd34d}
-.fc-score b{color:#92400e}
-.fc-decide{background:var(--green-l);border-color:#86efac}
-.fc-decide b{color:#166534}
-.fc-out{background:#f3e8ff;border-color:#d8b4fe}
-.fc-out b{color:#7e22ce}
-.arch-divider{height:1px;background:var(--line);margin:16px 0}
-.active-chip{background:linear-gradient(135deg,#dbeafe,#e0f2fe);border-color:var(--sky);box-shadow:0 0 0 2px rgba(56,189,248,.25)}
-.active-chip b{color:var(--cyan)}
-.active-chip span{color:var(--cyan)}
+

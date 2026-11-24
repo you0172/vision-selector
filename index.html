@@ -390,38 +390,6 @@
           <p>从成像原理到工程落地的系统性选型思路，帮助你理解推荐结果背后的逻辑。</p>
         </div>
 
-        <div class="panel arch-panel">
-          <div class="arch-head">
-            <h3>系统架构与产线基线流程</h3>
-            <p>上图为本系统的求解架构（交付物：系统架构图）；下图为机器视觉产线的标准处理链（执行流程图），硬件选型发生在最上游的「成像」环节。</p>
-          </div>
-          <div class="arch-flow">
-            <div class="flow-chip fc-in"><b>工况输入</b><span>18 项产线参数</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-solve"><b>成像求解</b><span>分辨率 / 帧率 / 焦距</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-score"><b>多约束评分</b><span>8 项约束耦合加权</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-decide"><b>硬件决策</b><span>相机 · 镜头 · 光源 · 接口</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-out"><b>可解释输出</b><span>匹配度 + 证据 + 边界</span></div>
-          </div>
-          <div class="arch-divider"></div>
-          <div class="line-flow">
-            <div class="flow-chip fc-cam active-chip"><b>① 成像</b><span>本系统作用环节</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-cam"><b>② 预处理</b><span>滤波 / 增强</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-cam"><b>③ 定位 / 检测</b><span>算法核心</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-cam"><b>④ 判定</b><span>OK / NG</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-cam"><b>⑤ 通讯 / 报表</b><span>PLC / 上位机</span></div>
-            <span class="flow-arrow">→</span>
-            <div class="flow-chip fc-cam"><b>⑥ 业务动作</b><span>剔除 / 分拣</span></div>
-          </div>
-        </div>
-
         <div class="guide-grid" id="guideGrid"></div>
       </section>
 
