@@ -302,8 +302,10 @@
       cols = ['型号','品牌 / 整机型号','焦距','最大光圈','覆盖像面','畸变','类型','供货状态'];
       rows = DB.lenses.map(l=>[l.id, l.brand+' '+l.model, l.focal+' mm', 'F'+l.fno, 'Ø'+l.coverDiag+' mm', l.dist+' %', l.type, stTag(l.status)]);
     }else if(hwTab==='lights'){
-      cols = ['产品','品牌','适用场景','技术特点','成本','供货状态'];
-      rows = DB.lights.map(l=>[l.name, l.name.startsWith('CCS')?'CCS':(l.name.includes('OPT')?'奥普特':'—'), l.best, l.note,
+      const CAT = {ring:'环形', bar:'条形 / 线性', back:'背光', coax:'同轴', dome:'穹顶 / 无影', flat:'面光源', spot:'点光源', rgb:'多角度', special:'特种'};
+      const brandOf = l => l.series==='CST' ? 'CST' : (l.name.startsWith('CCS')?'CCS':(l.name.includes('OPT')?'奥普特':'—'));
+      cols = ['产品','品牌','类别','适用场景','技术特点','成本','供货状态'];
+      rows = DB.lights.map(l=>[l.name, brandOf(l), CAT[l.cat]||'—', l.best, l.note,
         '<span class="tag '+(l.tier<=2?'tag-green':l.tier>=5?'tag-amber':'')+'">'+tierLabel(l.tier)+'</span>', stTag(l.status)]);
     }else{
       cols = ['型号','类别','关键规格','适用场景','供货状态','替代说明'];

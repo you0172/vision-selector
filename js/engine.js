@@ -35,6 +35,15 @@ const Engine = {
     return {GigE:110, USB3:400, CameraLink:850, '10GigE':1100, CSI:200, auto:1100}[name] || 110;
   },
 
+  /* 光源选型：在任务类别内优先选目录真实型号（CST 系列），按成本等级取最低、同价取先收录者；
+     该类别无目录型号时回退到类别锚点（CCS / OPT 通用型号） */
+  pickLight(catId){
+    const pool = DB.lights.filter(l => l.cat === catId);
+    const catalog = pool.filter(l => l.series === 'CST').sort((a,b)=>a.tier-b.tier);
+    if(catalog.length) return catalog[0];
+    return DB.lights.find(l => l.id === catId) || pool[0] || DB.lights[0];
+  },
+
   /* 景深粗估：DOF ≈ 2·N·c·(WD/f)²  (c ≈ 2×像元尺寸) */
   depthOfField(sensor, lens, wd){
     const c = 2 * sensor.pixel / 1000; // mm
@@ -114,8 +123,8 @@ const Engine = {
     }
     const bwOk = bw <= this.interfaceCapacity(iface);
 
-    /* 5) 光源 */
-    const light = DB.lights.find(l => l.id === hint.light) || DB.lights[0];
+    /* 5) 光源：优先匹配目录内真实型号（同类别按成本等级取最低），无目录型号时回退类别锚点 */
+    const light = this.pickLight(hint.light);
     let lightNote = light.note;
     if(input.lightingEnv === 'outdoor') lightNote = '户外强光需加装遮光罩并选用高功率光源 / 滤光片';
     else if(input.lightingEnv === 'variable') lightNote = '光照波动大，建议封闭式光源 + 自动曝光锁定';
