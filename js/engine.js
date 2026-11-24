@@ -1,5 +1,5 @@
 /* ============ 智能推荐引擎 ============ */
-/* 基于物理成像模型 + YOLOv26 检测需求的联合求解 */
+/* 基于物理成像模型 + 产线工况的多约束联合求解 */
 
 const Engine = {
 
@@ -110,22 +110,12 @@ const Engine = {
     if(input.lightingEnv === 'outdoor') lightNote = '户外强光需加装遮光罩并选用高功率光源 / 滤光片';
     else if(input.lightingEnv === 'variable') lightNote = '光照波动大，建议封闭式光源 + 自动曝光锁定';
 
-    /* 6) YOLOv26 模型变体 */
-    let idx = hint.modelBias;
-    const computeMax = {edge:1, gpu:3, cloud:4}[input.compute] ?? 2;
-    if(pixelOnObject < 20) idx += 2;
-    else if(pixelOnObject < 30) idx += 1;
-    if(needFps > 80) idx -= 2;
-    else if(needFps > 45) idx -= 1;
-    if(input.budget === 'economy') idx -= 1;
-    if(input.budget === 'performance') idx += 1;
-    if(input.precision === 'high') idx += 1;
-    idx = Math.max(0, Math.min(4, idx));
-    idx = Math.min(idx, computeMax);
-    let model = DB.models[idx];
-    let modelInput = model.input;
-    if(pixelOnObject < 18 && input.compute !== 'edge') modelInput = '1280';
-    const inferOk = model.edge >= needFps || input.compute !== 'edge';
+    /* 6) 部署环境建议 */
+    const deployHint = {
+      edge: '边缘部署：建议嵌入式视觉平台或工控机直连采集，预留存储与编码带宽余量',
+      gpu: 'GPU 工作站：适合高帧率、大分辨率采集与离线算法分析',
+      cloud: '服务器集中处理：多路图像经网络回传，需核算上行链路带宽'
+    }[input.compute] || '';
 
     /* 7) 匹配度评分 */
     let confidence = 100;
@@ -144,28 +134,27 @@ const Engine = {
     tags.push(sensor.shutter === 'global' ? '全局快门' : '卷帘快门');
     tags.push(sensor.lowLight >= 4 ? '弱光增强' : '标准灵敏度');
     tags.push(iface + ' 接口');
-    if(modelInput === '1280') tags.push('高分辨率推理');
     if(input.compute === 'edge') tags.push('边缘部署');
 
     const analysis = [];
-    analysis.push(`目标在图像中约占 <b>${pixelOnObject.toFixed(0)} px</b>，${pixelOnObject>=20?'满足 YOLO 稳定检出的像素要求':'低于 20 px 推荐阈值，建议缩短工作距离或提高精度等级'}。`);
+    analysis.push(`目标在图像中约占 <b>${pixelOnObject.toFixed(0)} px</b>，${pixelOnObject>=20?'满足稳定检出与识别的像素要求':'低于 20 px 推荐阈值，建议缩短工作距离或提高精度等级'}。`);
     analysis.push(`理论所需分辨率 ${req.h}×${req.v}，选用 ${sensor.name}（${sensor.resH}×${sensor.resV}）${resLimited?'，现有库内分辨率最接近该需求':'，分辨率满足且不过度冗余'}。`);
     analysis.push(`理论焦距 ${idealFocal.toFixed(1)} mm，选配 ${lens.focal} mm ${lens.type}，实际视场约 ${actualFovW.toFixed(0)}×${actualFovH.toFixed(0)} mm。`);
     analysis.push(`采集帧率需 ≥ ${needFps} fps（${input.triggerMode==='trigger'?'触发模式，按单次触发计算':'连续采集模式'}），图像数据速率约 ${bw.toFixed(0)} MB/s，${iface} ${bwOk?'带宽充裕':'带宽接近上限，建议降低分辨率或升级接口'}。`);
-    analysis.push(`推荐 YOLOv26 ${model.id.toUpperCase()} 变体，输入 ${modelInput}×${modelInput}；预估 ${input.compute==='edge'?model.edge+' fps (边缘)':model.gpu+' fps (GPU)'}，${inferOk?'可满足节拍':'推理可能成为瓶颈，建议降低分辨率或升级算力'}。`);
+    if(deployHint) analysis.push(deployHint + '。');
     if(hint.note) analysis.push(hint.note + '。');
     if(dof < 15) analysis.push(`当前景深约 ${dof.toFixed(0)} mm，较浅；若工件高度波动大，建议缩小光圈或改用远心镜头。`);
 
     return {
-      input, req, needFps, sensor, lens, light, model, modelInput, iface,
+      input, req, needFps, sensor, lens, light, iface, deployHint,
       idealFocal, actualFovW, actualFovH, pixelOnObject, dof, bw,
-      confidence, tags, analysis, resLimited, fpsLimited, bwOk, coverOk, inferOk
+      confidence, tags, analysis, resLimited, fpsLimited, bwOk, coverOk
     };
   },
 
   /* ---------- 基线对照：传统人工查表法 ---------- */
   /* 模拟工程常见做法：仅按「分辨率达标 + 成本最低」单一约束选型，
-     不校核帧率、快门、带宽、接口与 YOLO 成像像素。用于创新点的公平对照。 */
+     不校核帧率、快门、带宽、接口与目标成像像素。用于创新点的公平对照。 */
   baselineSelect(input){
     const req = this.requiredResolution(input);
     const pool = DB.sensors.filter(s => s.resH >= req.h);
@@ -187,12 +176,12 @@ const Engine = {
     const assumedIface = 'GigE';
     const bwOk = bw <= this.interfaceCapacity(assumedIface);
     const motionRisk = input.lineSpeed > 0 && input.triggerMode === 'continuous' && sensor.shutter === 'rolling';
-    const yoloRisk = pixelOnObject < 20;
+    const pixelRisk = pixelOnObject < 20;
 
     const risks = [];
     if(bwOk === false) risks.push(`带宽 ${bw.toFixed(0)} MB/s 超出 GigE 约 110 MB/s 上限，实际部署需更换接口`);
     if(motionRisk) risks.push('运动产线下卷帘快门会产生果冻效应，需返工更换全局快门相机');
-    if(yoloRisk) risks.push(`目标仅 ${pixelOnObject.toFixed(0)} px，低于 YOLO 稳定检出阈值`);
+    if(pixelRisk) risks.push(`目标仅 ${pixelOnObject.toFixed(0)} px，低于 20 px 稳定检出阈值，识别易漏检`);
 
     return {
       sensor, lens, idealFocal, pixelOnObject, bw, assumedIface,

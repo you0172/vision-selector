@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YOLOv26 工业视觉选型助手 · 硬件参数智能推荐系统</title>
+<title>工业视觉选型助手 · 硬件参数智能推荐系统</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -21,7 +21,7 @@
         </svg>
       </div>
       <div class="brand-text">
-        <div class="brand-title">YOLOv26 <span>视觉选型</span></div>
+        <div class="brand-title">工业视觉 <span>选型助手</span></div>
         <div class="brand-sub">INDUSTRIAL VISION SELECTOR</div>
       </div>
     </div>
@@ -54,17 +54,14 @@
       <a class="nav-item" data-page="hardware" href="#">
         <span class="nav-ico">▦</span><span>硬件参数库</span>
       </a>
-      <a class="nav-item" data-page="models" href="#">
-        <span class="nav-ico">◉</span><span>YOLOv26 模型中心</span>
-      </a>
       <a class="nav-item" data-page="guide" href="#">
         <span class="nav-ico">✦</span><span>选型知识指南</span>
       </a>
     </nav>
 
     <div class="sidebar-foot">
-      <div class="sys-status"><span class="dot"></span> 引擎就绪 · v2.6.0</div>
-      <div class="sys-sub">YOLOv26 Edge + Industrial AI</div>
+      <div class="sys-status"><span class="dot"></span> 引擎就绪 · v2.7.0</div>
+      <div class="sys-sub">相机 · 镜头 · 光源 · 接口 联合选型</div>
     </div>
   </aside>
 
@@ -75,7 +72,7 @@
       <button class="icon-btn menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
       <div class="topbar-title">
         <h1 id="pageTitle">智能选型工作台</h1>
-        <p id="pageSubtitle">根据产线需求，智能推荐相机 · 镜头 · 光源 · YOLO 模型配置</p>
+        <p id="pageSubtitle">根据产线需求，智能推荐相机 · 镜头 · 光源 · 接口配置</p>
       </div>
       <div class="topbar-right">
         <span class="chip chip-ai">⚡ AI 推理引擎</span>
@@ -248,7 +245,7 @@
               <button class="btn btn-primary btn-lg" id="runRecommend">
                 <span>⚡</span> 开始智能推荐
               </button>
-              <div class="foot-hint">基于物理成像模型 + YOLOv26 检测需求联合求解</div>
+              <div class="foot-hint">基于物理成像模型 + 产线工况的多约束联合求解</div>
             </div>
           </div>
 
@@ -257,7 +254,7 @@
             <div class="panel-head">
               <div>
                 <h2>② 智能推荐结果</h2>
-                <p>硬件选型与模型配置的一体化推荐方案</p>
+                <p>相机 · 镜头 · 光源 · 接口的一体化推荐方案</p>
               </div>
               <span class="step-badge step-badge-green">STEP 2</span>
             </div>
@@ -272,7 +269,7 @@
                 </svg>
               </div>
               <h3>等待输入参数</h3>
-              <p>填写左侧工况参数后，点击「开始智能推荐」<br>系统将为你生成完整的硬件与模型配置方案</p>
+              <p>填写左侧工况参数后，点击「开始智能推荐」<br>系统将为你生成完整的硬件配置方案</p>
             </div>
 
             <div class="result-content" id="resultContent" style="display:none">
@@ -336,7 +333,7 @@
 
           <div class="panel calc-card">
             <div class="calc-head"><span class="calc-ico">②</span><h3>分辨率需求</h3></div>
-            <p class="calc-desc">按 YOLO 最小可检像素数估算相机所需水平分辨率</p>
+            <p class="calc-desc">按最小可检像素数估算相机所需水平分辨率</p>
             <div class="calc-body">
               <label class="field"><span>视场宽度 FOV (mm)</span><input type="number" id="resFOV" value="300" step="10"></label>
               <label class="field"><span>最小检出尺寸 (mm)</span><input type="number" id="resObj" value="3" step="0.1"></label>
@@ -395,39 +392,6 @@
         </div>
       </section>
 
-      <!-- ---------- PAGE: MODELS ---------- -->
-      <section class="page" id="page-models">
-        <div class="page-intro">
-          <h2>YOLOv26 模型中心</h2>
-          <p>面向工业检测的 YOLOv26 系列模型选型指南 —— 在速度、精度与部署算力之间取得最佳平衡。</p>
-        </div>
-        <div class="model-hero">
-          <div class="model-hero-text">
-            <span class="hero-tag">LATEST GENERATION</span>
-            <h3>YOLOv26</h3>
-            <p>新一代实时目标检测架构，针对工业视觉场景优化了小目标检测、缺陷定位与边缘部署效率。提供 n / s / m / l / x 五种规模，适配从嵌入式到服务器的全谱算力。</p>
-            <div class="hero-stats" id="heroStats"></div>
-          </div>
-          <div class="model-hero-art">
-            <svg viewBox="0 0 220 160" width="220" height="160">
-              <rect x="20" y="20" width="180" height="120" rx="10" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="2"/>
-              <rect x="45" y="45" width="50" height="38" rx="4" fill="none" stroke="#2563eb" stroke-width="2.5"/>
-              <rect x="125" y="70" width="45" height="34" rx="4" fill="none" stroke="#22c55e" stroke-width="2.5"/>
-              <path d="M95 64 L125 87" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3"/>
-              <circle cx="70" cy="64" r="4" fill="#2563eb"/>
-              <circle cx="147" cy="87" r="4" fill="#22c55e"/>
-              <text x="45" y="103" font-size="11" fill="#475569" font-family="sans-serif">defect 0.97</text>
-              <text x="125" y="124" font-size="11" fill="#475569" font-family="sans-serif">part 0.94</text>
-            </svg>
-          </div>
-        </div>
-        <div class="panel table-panel">
-          <div class="table-toolbar"><h3 style="margin:0;font-size:15px;">模型规格对比</h3></div>
-          <div class="table-wrap" id="modelTableWrap"></div>
-        </div>
-        <div class="tip-grid" id="modelTips"></div>
-      </section>
-
       <!-- ---------- PAGE: DEMO SCRIPT ---------- -->
       <section class="page" id="page-demo">
         <div class="page-intro">
@@ -445,7 +409,7 @@
         <div class="notice-box">
           <div class="notice-head">⚠ 答辩红线提示（通知第八部分）</div>
           <ul>
-            <li>不得将"使用了 YOLO / AI"本身视为创新——须说明具体改动及实测效果</li>
+            <li>不得将"使用了 AI"本身视为创新——须说明具体改动及实测效果</li>
             <li>个人简历须与本人实际承担的工作一致，不得虚构项目经历</li>
             <li>作品与 PPT 须于 11 月 23 日辅导前备齐并携带到场</li>
             <li>11 月 24 日辅导后按意见定稿，工程资料与简历 11 月 25 日初赛前备齐</li>

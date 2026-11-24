@@ -4,9 +4,10 @@
   const $$ = s => Array.from(document.querySelectorAll(s));
   const esc = v => String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const num = id => parseFloat($('#'+id).value) || 0;
+  const ifaceName = v => ({GigE:'GigE 千兆网接口', USB3:'USB 3.0 接口', CameraLink:'Camera Link 接口', '10GigE':'10 GigE 接口', CSI:'MIPI CSI-2 接口'})[v] || v;
 
   const PAGE_META = {
-    workbench:['智能选型工作台','根据产线需求，智能推荐相机 · 镜头 · 光源 · YOLO 模型配置'],
+    workbench:['智能选型工作台','根据产线需求，智能推荐相机 · 镜头 · 光源 · 接口配置'],
     demo:['7 分钟演示路线','严格对应通知第七部分的时间分配，一键跳转对应证据页面'],
     innovation:['创新点论证','具体改动 · 实测证据 · 适用范围，不把使用 AI 本身当创新'],
     value:['价值与场景','真实应用、受影响对象、可测量价值与适用边界'],
@@ -14,7 +15,6 @@
     engineering:['工程与开源','版本、文件清单、GitHub 与本人贡献（须如实填写）'],
     calculator:['参数计算器','光学、分辨率、帧率与带宽的常用计算工具'],
     hardware:['硬件参数库','相机传感器、工业镜头与光源的典型规格参考'],
-    models:['YOLOv26 模型中心','模型规格对比与工业部署选型指南'],
     guide:['选型知识指南','理解推荐结果背后的成像与工程逻辑']
   };
 
@@ -145,7 +145,7 @@
     ].map(x=>`<div class="req-item"><div class="req-k">${x[0]}</div><div class="req-v">${esc(x[1])}</div><div class="req-u">${x[2]}</div></div>`).join('');
 
     /* 推荐卡片 */
-    const s = r.sensor, l = r.lens, li = r.light, m = r.model;
+    const s = r.sensor, l = r.lens, li = r.light;
     $('#recGrid').innerHTML = `
       <div class="rec-card c-camera">
         <div class="rec-top"><span class="rec-cat">相机 / 传感器</span><span class="rec-badge">${tierLabel(s.tier)}</span></div>
@@ -179,17 +179,16 @@
         </div>
         <div class="rec-note">${esc(r.input.lightingEnv==='outdoor'?'户外强光需加装遮光罩并选用高功率光源 / 滤光片':r.input.lightingEnv==='variable'?'光照波动大，建议封闭式光源 + 自动曝光锁定':li.note)}</div>
       </div>
-      <div class="rec-card c-yolo">
-        <div class="rec-top"><span class="rec-cat">检测模型</span><span class="rec-badge">${esc(m.tag)}</span></div>
-        <div class="rec-name">${esc(m.name)}</div>
+      <div class="rec-card c-iface">
+        <div class="rec-top"><span class="rec-cat">接口与传输</span><span class="rec-badge">${esc(r.iface)}</span></div>
+        <div class="rec-name">${esc(ifaceName(r.iface))}</div>
         <div class="rec-specs">
-          ${specRow('参数量', m.params)}
-          ${specRow('mAP@0.5:0.95', m.map)}
-          ${specRow('GPU 推理', m.gpu+' fps')}
-          ${specRow('边缘推理', m.edge+' fps')}
-          ${specRow('输入尺寸', r.modelInput+' × '+r.modelInput)}
+          ${specRow('图像数据速率', r.bw.toFixed(0)+' MB/s')}
+          ${specRow('带宽校核', r.bwOk?'充裕':'接近/超出上限')}
+          ${specRow('最低采集帧率', r.needFps+' fps')}
+          ${specRow('快门适配', r.input.mount==='moving' ? (r.sensor.shutter==='global'?'全局快门 ✓':'需全局快门 ✗') : '静态 / 低速场景')}
         </div>
-        <div class="rec-note">模型体积 ${m.size}；${esc(m.desc)}</div>
+        <div class="rec-note">${r.bwOk?'当前接口可承载估算数据速率':'数据速率超过接口上限，建议升级接口或降低分辨率 / 帧率'}</div>
       </div>`;
 
     /* 分析建议 */
@@ -201,7 +200,7 @@
     if(!currentResult){ toast('请先生成推荐方案'); return; }
     const r = currentResult;
     const txt = [
-      '【YOLOv26 工业视觉选型方案】',
+      '【工业视觉硬件选型方案】',
       '匹配度：'+r.confidence+'%',
       '',
       '一、工况输入',
@@ -213,7 +212,7 @@
       '镜头：'+r.lens.focal+'mm '+r.lens.type+'（F'+r.lens.fno+'）',
       '光源：'+r.light.name,
       '接口：'+r.iface+'，数据速率：'+r.bw.toFixed(0)+' MB/s',
-      '检测模型：'+r.model.name+'（输入 '+r.modelInput+'×'+r.modelInput+'）',
+      '最小目标成像：约 '+r.pixelOnObject.toFixed(0)+' px'+(r.deployHint?('；'+r.deployHint):''),
       '',
       '三、工程建议',
       ...r.analysis.map((a,i)=>(i+1)+'. '+a.replace(/<[^>]+>/g,''))
@@ -301,29 +300,6 @@
     t.classList.add('active'); hwTab = t.dataset.tab; renderHardware();
   }));
   $('#hwSearch').addEventListener('input', renderHardware);
-
-  /* ---------- 模型中心 ---------- */
-  function renderModels(){
-    $('#heroStats').innerHTML = [
-      ['5','种模型规模'], ['56.9','最高 mAP'], ['120','GPU 峰值 fps'], ['640~1280','输入分辨率']
-    ].map(x=>`<div class="hero-stat"><div class="hs-v">${x[0]}</div><div class="hs-k">${x[1]}</div></div>`).join('');
-
-    const cols = ['模型','参数量','mAP@0.5:0.95','GPU FPS','边缘 FPS','输入尺寸','模型大小','定位','说明'];
-    $('#modelTableWrap').innerHTML = `<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${
-      DB.models.map(m=>{
-        const sel = currentResult && currentResult.model.id===m.id;
-        return `<tr${sel?' style="background:#eff6ff"':''}>
-          <td><b>${m.name}</b>${sel?' <span class="tag tag-blue">当前推荐</span>':''}</td>
-          <td>${m.params}</td><td>${m.map}</td><td>${m.gpu}</td><td>${m.edge}</td>
-          <td>${m.input}</td><td>${m.size}</td>
-          <td><span class="tag ${m.id==='n'||m.id==='s'?'tag-green':m.id==='x'?'tag-amber':'tag-blue'}">${m.tag}</span></td>
-          <td style="white-space:normal;max-width:340px">${m.desc}</td></tr>`;
-      }).join('')
-    }</tbody></table>`;
-
-    $('#modelTips').innerHTML = DB.modelTips.map(t=>`<div class="tip-card">
-      <div class="tip-ico">${t.ico}</div><h4>${t.title}</h4><p>${t.body}</p></div>`).join('');
-  }
 
   /* ---------- 知识指南 ---------- */
   function renderGuides(){
@@ -496,6 +472,5 @@
   renderEngineering();
   $('#runBaseline').addEventListener('click', ()=>{ renderBaseline(); toast('已按当前算法重新计算 5 组对照'); });
   renderHardware();
-  renderModels();
   renderGuides();
 })();
