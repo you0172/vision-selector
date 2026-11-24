@@ -115,7 +115,28 @@
 
 ### 5.3 对照复现路径
 
-运行第五章末尾的 node 复算命令（或依次改输入重跑），即可复现 5 组工况下的基线与本系统选型差异、逐条约束审计结果，以及「结论 → 证据 → 边界」三段式结论。该表数据由引擎实时计算生成，非页面写死。
+5 组工况即系统内置预设 `Engine.PRESETS`（工作台可一键切换的 A–E 工况）。在项目根目录运行以下命令即可复现 5.2 表格（基线与本系统选型、逐条约束审计、风险计数均由引擎实时计算，非页面写死）：
+
+```bash
+node -e "
+const fs=require('fs');
+const src=fs.readFileSync('js/data.js','utf8')+'\n'+fs.readFileSync('js/engine.js','utf8');
+const E=new Function(src+'; return Engine;')();
+let aH=0,aM=0,bH=0,bM=0;
+for(const k of Object.keys(E.PRESETS)){
+  const r=E.recommend(E.PRESETS[k].input);
+  console.log(k, r.sensor.id, r.lens.focal+'mm', r.iface, r.confidence+'%');
+  const c=E.compare(E.PRESETS[k].input);
+  aH+=c.aRisks.filter(x=>x.level==='high').length;
+  bH+=c.bRisks.filter(x=>x.level==='high').length;
+  aM+=c.aRisks.length-c.aRisks.filter(x=>x.level==='high').length;
+  bM+=c.bRisks.length-c.bRisks.filter(x=>x.level==='high').length;
+}
+console.log('基线风险合计', aH+aM, '(高风险'+aH+') / 本系统', bH+bM, '(高风险'+bH+')');
+"
+```
+
+预期输出与 5.2 一致：A `IMX264 · 12mm · CameraLink · 99`、B `IMX253 · 25mm · CameraLink · 88`、C `IMX249 · 9mm · GigE · 99`、D `IMX264 · 12mm · CameraLink · 99`、E `IMX253 · 25mm · CameraLink · 99`；基线累计 7 项风险（5 高风险）／本系统 3 项（1 高风险）。相同输入重复运行 10 次，结果完全一致。
 
 ### 5.4 三条可复核的创新点表述
 
